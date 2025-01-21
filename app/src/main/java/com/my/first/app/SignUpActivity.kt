@@ -10,6 +10,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -20,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -133,6 +135,9 @@ fun SignUpForm() {
         if (phone.isBlank() || phone.length < 10) {
             phoneError = "Enter a valid phone number"
             isValid = false
+        } else if (phone.matches(Regex("^[+]?[0-9]{10,15}\$"))) {
+            phoneError = "Enter a valid phone number"
+            isValid = false
         } else {
             phoneError = null
         }
@@ -149,6 +154,27 @@ fun SignUpForm() {
             confirmPasswordError = null
         }
         return isValid
+    }
+
+    fun formatPhoneNumber(input: String): String {
+        val digits = input.filter { it.isDigit() } // Retire tout sauf les chiffres
+        return when {
+            digits.length <= 3 -> digits
+            digits.length <= 6 -> "(${digits.substring(0, 3)}) ${digits.substring(3)}"
+            digits.length <= 10 -> "(${digits.substring(0, 3)}) ${
+                digits.substring(
+                    3,
+                    6
+                )
+            }-${digits.substring(6)}"
+
+            else -> "(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${
+                digits.substring(
+                    6,
+                    10
+                )
+            }"
+        }
     }
 
     Column(
@@ -194,13 +220,18 @@ fun SignUpForm() {
         }
         OutlinedTextField(
             value = phone,
-            onValueChange = { phone = it },
+            onValueChange = {
+                val formatted = formatPhoneNumber(it)
+                if (formatted.length <= 15) phone = formatted
+            },
             label = { Text("Phone Number") },
             leadingIcon = { Icon(Icons.Filled.Phone, contentDescription = "Phone Icon") },
             modifier = Modifier.fillMaxWidth(),
             isError = phoneError != null,
-            placeholder = { Text("Enter your phone number") }
+            placeholder = { Text("(XXX) XXX-XXXX") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone)
         )
+
         if (phoneError != null) {
             Text(text = phoneError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
         }
