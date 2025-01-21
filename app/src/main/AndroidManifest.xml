@@ -28,6 +28,11 @@
             android:exported="false"
             android:label="@string/title_activity_sign"
             android:theme="@style/Theme.MyFirstApp" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false"
+            android:label="@string/title_activity_forgot"
+            android:theme="@style/Theme.MyFirstApp" />
     </application>
 
 </manifest>
